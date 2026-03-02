@@ -22,13 +22,18 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 # Final stage
 FROM alpine:latest
 
-# Install ca-certificates for HTTPS requests
-RUN apk --no-cache add ca-certificates
+# Install ca-certificates and create non-root user
+RUN apk --no-cache add ca-certificates \
+    && addgroup -S appgroup \
+    && adduser -S appuser -G appgroup
 
-WORKDIR /root/
+WORKDIR /home/appuser
 
 # Copy the binary from builder
 COPY --from=builder /app/main .
+
+# Switch to non-root user
+USER appuser
 
 # Expose port
 EXPOSE 8080
