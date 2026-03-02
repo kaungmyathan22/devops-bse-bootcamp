@@ -1,23 +1,31 @@
 # Go Web Application
 
-A simple, production-ready Go web application with Docker support.
+A production-ready Go web application with Docker containerization and CI/CD automation.
+
+## Architecture
+
+This application consists of:
+- **Go HTTP Server**: Lightweight web server with health checks, API endpoints, and metrics
+- **Docker**: Multi-stage build producing optimized Alpine-based container images
+- **CI/CD**: GitHub Actions workflow that automatically builds and pushes images to Docker Hub on every push to main
 
 ## Features
 
 - HTTP web server with multiple endpoints
-- Health check endpoint (`/health`)
-- API endpoint (`/api/hello`)
-- Docker containerization
-- Multi-stage Docker build for optimized image size
+- Production-ready health check endpoint with uptime and version tracking
+- Metrics endpoint for observability
+- Docker containerization with non-root user
+- Automated CI/CD pipeline
+- Comprehensive test coverage
 
-## Prerequisites
+## Running Locally
+
+### Prerequisites
 
 - Go 1.21 or higher
 - Docker (optional, for containerization)
 
-## Local Development
-
-### Run locally
+### Setup and Run
 
 ```bash
 # Install dependencies
@@ -32,14 +40,29 @@ The server will start on `http://localhost:8080` by default.
 ### Available Endpoints
 
 - `GET /` - Home page with information about the app
-- `GET /health` - Health check endpoint (returns JSON)
-- `GET /api/hello` - API hello endpoint (returns JSON)
+- `GET /health` - Health check endpoint (returns status, uptime, version)
+- `GET /api/hello` - API hello endpoint
+- `GET /metrics` - Metrics endpoint with request counters
 
 ### Environment Variables
 
 - `PORT` - Server port (default: 8080)
 
-## Docker
+### Running Tests
+
+```bash
+go test ./...
+```
+
+### Building with Version
+
+To build with a specific version:
+
+```bash
+go build -ldflags "-X main.Version=v1.0.0" -o main .
+```
+
+## Running with Docker
 
 ### Build Docker Image
 
@@ -82,9 +105,9 @@ docker-compose up
 
 ## CI/CD
 
-This project includes GitHub Actions workflow for automated Docker image building and pushing to Docker Hub.
+This project uses GitHub Actions for automated builds and deployments.
 
-### GitHub Actions Setup
+### Setup
 
 1. Go to your GitHub repository settings
 2. Navigate to **Secrets and variables** → **Actions**
@@ -94,10 +117,9 @@ This project includes GitHub Actions workflow for automated Docker image buildin
 
 ### Workflow Behavior
 
-- **On push to main/master**: Builds and pushes Docker image to `kaungmyathan/devops-bse-bootcamp`
-- **On pull requests**: Builds the image but doesn't push (for testing)
-- **On tags (v*)**: Creates versioned tags (e.g., `v1.0.0`, `v1.0`, `v1`)
-- **Default tag**: `latest` is applied to the main branch
+- **Every push to main/master**: Automatically runs tests, builds Docker image, and pushes to Docker Hub as `kaungmyathan/devops-bse-bootcamp:latest`
+- **On pull requests**: Runs tests and builds the image but doesn't push (for validation)
+- **Tagging vX.Y.Z**: Creates versioned image tags (e.g., `v1.0.0`, `v1.0`, `v1`) in addition to `latest`
 
 ### Pull Docker Image
 
@@ -108,6 +130,13 @@ docker pull kaungmyathan/devops-bse-bootcamp:latest
 docker run -p 8080:8080 kaungmyathan/devops-bse-bootcamp:latest
 ```
 
+For versioned releases:
+
+```bash
+docker pull kaungmyathan/devops-bse-bootcamp:v1.0.0
+docker run -p 8080:8080 kaungmyathan/devops-bse-bootcamp:v1.0.0
+```
+
 ## Project Structure
 
 ```
@@ -116,6 +145,7 @@ docker run -p 8080:8080 kaungmyathan/devops-bse-bootcamp:latest
 │   └── workflows/
 │       └── docker.yml    # GitHub CI/CD workflow
 ├── main.go               # Main application file
+├── main_test.go          # Test file
 ├── go.mod                # Go module file
 ├── Dockerfile            # Docker configuration
 ├── .dockerignore         # Docker ignore file
@@ -125,8 +155,8 @@ docker run -p 8080:8080 kaungmyathan/devops-bse-bootcamp:latest
 ## Building for Production
 
 ```bash
-# Build binary
-go build -o main .
+# Build binary with version
+go build -ldflags "-X main.Version=v1.0.0" -o main .
 
 # Run binary
 ./main
