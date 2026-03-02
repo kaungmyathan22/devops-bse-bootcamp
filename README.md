@@ -80,15 +80,46 @@ Then run:
 docker-compose up
 ```
 
+## CI/CD
+
+This project includes GitHub Actions workflow for automated Docker image building and pushing to Docker Hub.
+
+### GitHub Actions Setup
+
+1. Go to your GitHub repository settings
+2. Navigate to **Secrets and variables** → **Actions**
+3. Add the following secrets:
+   - `DOCKER_USERNAME`: Your Docker Hub username (kaungmyathan)
+   - `DOCKER_PASSWORD`: Your Docker Hub access token or password
+
+### Workflow Behavior
+
+- **On push to main/master**: Builds and pushes Docker image to `kaungmyathan/devops-bse-bootcamp`
+- **On pull requests**: Builds the image but doesn't push (for testing)
+- **On tags (v*)**: Creates versioned tags (e.g., `v1.0.0`, `v1.0`, `v1`)
+- **Default tag**: `latest` is applied to the main branch
+
+### Pull Docker Image
+
+After the workflow runs, you can pull the image:
+
+```bash
+docker pull kaungmyathan/devops-bse-bootcamp:latest
+docker run -p 8080:8080 kaungmyathan/devops-bse-bootcamp:latest
+```
+
 ## Project Structure
 
 ```
 .
-├── main.go          # Main application file
-├── go.mod           # Go module file
-├── Dockerfile       # Docker configuration
-├── .dockerignore    # Docker ignore file
-└── README.md        # This file
+├── .github/
+│   └── workflows/
+│       └── docker.yml    # GitHub CI/CD workflow
+├── main.go               # Main application file
+├── go.mod                # Go module file
+├── Dockerfile            # Docker configuration
+├── .dockerignore         # Docker ignore file
+└── README.md             # This file
 ```
 
 ## Building for Production
