@@ -19,15 +19,15 @@ var (
 	startTime = time.Now()
 
 	// Request counters for metrics
-	requestCount    int64
-	healthCount     int64
-	helloCount      int64
-	metricsCount    int64
+	requestCount int64
+	healthCount  int64
+	helloCount   int64
+	metricsCount int64
 )
 
 type HealthResponse struct {
-	Status string `json:"status"`
-	Uptime string `json:"uptime"`
+	Status  string `json:"status"`
+	Uptime  string `json:"uptime"`
 	Version string `json:"version"`
 }
 
@@ -37,9 +37,9 @@ type MessageResponse struct {
 
 type MetricsResponse struct {
 	Requests struct {
-		Total  int64 `json:"total"`
-		Health int64 `json:"health"`
-		Hello  int64 `json:"hello"`
+		Total   int64 `json:"total"`
+		Health  int64 `json:"health"`
+		Hello   int64 `json:"hello"`
 		Metrics int64 `json:"metrics"`
 	} `json:"requests"`
 	Uptime  string `json:"uptime"`
@@ -59,6 +59,7 @@ func main() {
 
 	// API endpoint
 	mux.HandleFunc("/api/hello", middleware(helloHandler))
+	mux.HandleFunc("/api/ping", middleware(pingHandler))
 
 	// Metrics endpoint
 	mux.HandleFunc("/metrics", middleware(metricsHandler))
@@ -78,6 +79,16 @@ func main() {
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("Server failed to start: %v", err)
 	}
+}
+
+func pingHandler(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json")
+	response := map[string]string{
+		"status":    "ok",
+		"timestamp": time.Now().Format(time.RFC3339),
+	}
+	json.NewEncoder(w).Encode(response)
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
