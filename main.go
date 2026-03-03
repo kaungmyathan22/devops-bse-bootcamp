@@ -22,6 +22,7 @@ var (
 	requestCount int64
 	healthCount  int64
 	helloCount   int64
+	pingCount    int64
 	metricsCount int64
 )
 
@@ -40,6 +41,7 @@ type MetricsResponse struct {
 		Total   int64 `json:"total"`
 		Health  int64 `json:"health"`
 		Hello   int64 `json:"hello"`
+		Ping    int64 `json:"ping"`
 		Metrics int64 `json:"metrics"`
 	} `json:"requests"`
 	Uptime  string `json:"uptime"`
@@ -82,6 +84,7 @@ func main() {
 }
 
 func pingHandler(w http.ResponseWriter, r *http.Request) {
+	atomic.AddInt64(&pingCount, 1)
 
 	w.Header().Set("Content-Type", "application/json")
 	response := map[string]string{
@@ -124,11 +127,13 @@ func metricsHandler(w http.ResponseWriter, r *http.Request) {
 			Total   int64 `json:"total"`
 			Health  int64 `json:"health"`
 			Hello   int64 `json:"hello"`
+			Ping    int64 `json:"ping"`
 			Metrics int64 `json:"metrics"`
 		}{
 			Total:   atomic.LoadInt64(&requestCount),
 			Health:  atomic.LoadInt64(&healthCount),
 			Hello:   atomic.LoadInt64(&helloCount),
+			Ping:    atomic.LoadInt64(&pingCount),
 			Metrics: atomic.LoadInt64(&metricsCount),
 		},
 		Uptime:  fmt.Sprintf("%.0f", uptime.Seconds()),

@@ -98,6 +98,7 @@ func TestMetricsHandler(t *testing.T) {
 	requestCount = 0
 	healthCount = 0
 	helloCount = 0
+	pingCount = 0
 	metricsCount = 0
 
 	req, err := http.NewRequest("GET", "/metrics", nil)
@@ -141,5 +142,10 @@ func TestMetricsHandler(t *testing.T) {
 	// Check that metrics endpoint was called (should be at least 1)
 	if response.Requests.Metrics < 1 {
 		t.Error("metrics counter should be at least 1")
+	}
+
+	// Check that ping field exists in the JSON structure
+	if response.Requests.Ping < 0 {
+		t.Error("ping counter should not be negative")
 	}
 }
