@@ -16,11 +16,17 @@ RUN go mod download
 # Copy source code
 COPY . .
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+# Build argument for version
+ARG VERSION=dev
+
+# Build the application with version
+RUN CGO_ENABLED=0 GOOS=linux go build \
+    -a -installsuffix cgo \
+    -ldflags "-X main.Version=${VERSION}" \
+    -o main .
 
 # Final stage
-FROM alpine:latest
+FROM alpine:3.19
 
 # Install ca-certificates and create non-root user
 RUN apk --no-cache add ca-certificates \
